@@ -19,6 +19,7 @@ function fetchEmployees() {
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        deleteButton.addEventListener('click', () => deleteEmployee(item.id));
         deleteCell.appendChild(deleteButton);
 
         row.appendChild(deleteCell)
@@ -31,22 +32,44 @@ function fetchEmployees() {
 
 // TODO
 // add event listener to submit button
+document.addEventListener('DOMContentLoaded', () => {
+  fetchEmployees();
+  // Add event listener to the submit button
+  document.getElementById('submitBtn').addEventListener('click', createEmployee);
+});
 
 // TODO
-// add event listener to delete button
+function createEmployee() {
+  const name = document.getElementById('name').value;
+  const id = document.getElementById('id').value;
 
-// TODO
-function createEmployee (){
-  // get data from input field
-  // send data to BE
-  // call fetchEmployees
+  if (!name || !id) {
+    alert('Please enter both ID and Name');
+    return;
+  }
+
+  fetch('http://localhost:3000/api/v1/employee', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name, id })
+  })
+    .then(response => response.json())
+    .then(() => {
+      fetchEmployees();
+      document.getElementById('name').value = '';
+      document.getElementById('id').value = '';
+    })
+    .catch(error => console.error('Error creating employee:', error));
 }
 
 // TODO
-function deleteEmployee (){
-  // get id
-  // send id to BE
-  // call fetchEmployees
+function deleteEmployee(id) {
+  fetch(`http://localhost:3000/api/v1/employee/${id}`, {
+    method: 'DELETE'
+  })
+    .then(response => response.json())
+    .then(() => fetchEmployees())
+    .catch(error => console.error('Error deleting employee:', error));
 }
-
-fetchEmployees()
